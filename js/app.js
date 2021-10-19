@@ -6,9 +6,9 @@ var BALL = 'BALL';
 var GAMER = 'GAMER';
 var GLUE = 'GLUE';
 
-var GAMER_IMG = '<./img src="img/gamer.png" />';
-var BALL_IMG = '<./img src="img/ball.png" />';
-var GLUE_IMG = '<./img src="img/glue.jpg" />';
+var GAMER_IMG = '<img src="./img/gamer.png" />';
+var BALL_IMG = '<img src="./img/ball.png" />';
+var GLUE_IMG = '<img src="./img/glue.jpg" />';
 
 var gBoard;
 var gGamerPos;
