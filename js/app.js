@@ -17,18 +17,29 @@ var gNumOfBalls = 2;
 var elBallCounter = document.querySelector('h2 span');
 var gBallInterval;
 var gGlueInterval;
+var isGlued = false
+
 
 function initGame() {
 	gGamerPos = { i: 2, j: 9 };
+	gBallCollectCounter = 0
+	gNumOfBalls = 2
+	isGlued = false
 	gBoard = buildBoard();
 	renderBoard(gBoard);
+}
+
+function restartGame() {
+	initGame()
+	var elReastart = document.querySelector('.restart');
+	elReastart.classList.add('hide');
+
 }
 
 
 function buildBoard() {
 	// Create the Matrix
 	var board = createMat(10, 12)
-
 
 	// Put FLOOR everywhere and WALL at edges
 	for (var i = 0; i < board.length; i++) {
@@ -57,15 +68,14 @@ function buildBoard() {
 	// Place the Balls (currently randomly chosen positions)
 	board[3][8].gameElement = BALL;
 	board[7][4].gameElement = BALL;
-	gGlueInterval = setInterval(addGlue, 5000, board);
-	gBallInterval = setInterval(addBall, 5000, board);
-	console.log(board);
+	gGlueInterval = setInterval(addGlue, 7000, board);
+	gBallInterval = setInterval(addBall, 1500, board);
+
 	return board;
 }
 
 // Render the board to an HTML table
 function renderBoard(board) {
-
 	var strHTML = '';
 	for (var i = 0; i < board.length; i++) {
 		strHTML += '<tr>\n';
@@ -95,8 +105,6 @@ function renderBoard(board) {
 		strHTML += '</tr>\n';
 	}
 
-	// console.log('strHTML is:');
-	// console.log(strHTML);
 	var elBoard = document.querySelector('.board');
 	elBoard.innerHTML = strHTML;
 }
@@ -104,6 +112,8 @@ function renderBoard(board) {
 
 // Move the player to a specific location
 function moveTo(i, j) {
+
+	if (isGlued) return
 
 	if (i === -1) {
 		var targetCell = gBoard[9][j];
@@ -130,14 +140,17 @@ function moveTo(i, j) {
 			elBallCounter.innerText = gBallCollectCounter;
 			var audioBallEat = new Audio('sound/FOOTBALLKICK.wav');
 			audioBallEat.play();
-			console.log(gBallCollectCounter, ' balls were collected');
 			gNumOfBalls--;
 			if (gNumOfBalls === 0) {
-				console.log(gNumOfBalls, ' balls left, game over');
 				gameOver();
 			}
 		} else if (targetCell.gameElement === GLUE) {
-
+			isGlued = true
+			var audioGlue = new Audio('sound/GLUE.wav');
+			audioGlue.play();
+			setTimeout(function () {
+				isGlued = false
+			}, 3000);
 		}
 
 		// MOVING from current position
@@ -176,11 +189,8 @@ function renderCell(location, value) {
 
 // Move the player by keyboard arrows
 function handleKey(event) {
-
 	var i = gGamerPos.i;
 	var j = gGamerPos.j;
-
-
 	switch (event.key) {
 		case 'ArrowLeft':
 			moveTo(i, j - 1);
@@ -194,9 +204,7 @@ function handleKey(event) {
 		case 'ArrowDown':
 			moveTo(i + 1, j);
 			break;
-
 	}
-
 }
 
 // Returns the class name for a specific cell
@@ -208,8 +216,6 @@ function getClassName(location) {
 function addBall(board) {
 	var i = getRandomIntInclusive(1, 8)
 	var j = getRandomIntInclusive(1, 10)
-	console.log(i)
-	console.log(j)
 	if (board[i][j].gameElement === null) {
 		board[i][j].gameElement = BALL;
 		gNumOfBalls++;
@@ -219,22 +225,15 @@ function addBall(board) {
 }
 
 function gameOver() {
-	console.log('winner')
+	clearInterval(gGlueInterval)
 	clearInterval(gBallInterval);
-	var elBoard = document.querySelector('.board');
-	elBoard.style.display = 'none';
-
-	document.querySelector('.win').classList.remove('hide');
-	console.log(elWinMsg);
-	elWinMsg.style.display = '';
-	console.log(elBoard);
+	var elRestart = document.querySelector('.restart')
+	elRestart.classList.remove('hide');
 }
 
 function addGlue(board) {
 	var i = getRandomIntInclusive(1, 8)
 	var j = getRandomIntInclusive(1, 10)
-	console.log(i)
-	console.log(j)
 	if (board[i][j].gameElement === null) {
 		board[i][j].gameElement = GLUE;
 		renderBoard(board)
